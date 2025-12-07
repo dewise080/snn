@@ -86,7 +86,7 @@ MIDDLEWARE = [
 
 ]
 
-CSP_FRAME_ANCESTORS = ["'self'", "https://lona.beyond-board.me"]
+CONTENT_SECURITY_POLICY = {'DIRECTIVES': {'frame-ancestors': ["'self'", 'https://lona.beyond-board.me']}}
 
 INTERNAL_IPS = [
     '127.0.0.1',  # local IP for development

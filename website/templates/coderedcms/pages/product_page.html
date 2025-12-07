@@ -1,6 +1,6 @@
-{% extends "coderedcms/pages/web_page_notitle.html" %}
-{% load static wagtailcore_tags %}
-{% block content %}
+{% extends "coderedcms/pages/base.html" %}
+{% load static wagtailcore_tags wagtailimages_tags %}
+{% block content_body %}
 <style>
 /* General styling for image container */
 .wrap-pic-w img {
@@ -42,6 +42,37 @@
 }
 
 </style>
+
+{% load wagtailcore_tags %}
+{% pageurl page.get_site.root_page as home_url %}
+{% with home_page=page.get_site.root_page.specific %}
+
+<!-- Hero Section -->
+<div class="hero-wrap js-fullheight" style="background-image: url('{% if home_page.hero_background_image %}{{ home_page.hero_background_image.file.url }}{% endif %}'); height: 732px; background-position: 50% -25px;" data-stellar-background-ratio="0.5">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row no-gutters slider-text js-fullheight align-items-center justify-content-center" data-scrollax-parent="true" style="height: 732px;">
+            <div class="col-md-8 ftco-animate text-center" data-scrollax=" properties: { translateY: '70%' }" style="transform: translateZ(0px) translateY(0%);">
+                <div class="icon">
+                    <a href="{{ home_url }}" class="logo">
+                        <span class="flaticon-flower"></span>
+                        <h1>{{ home_page.hero_title }}</h1>
+                    </a>
+                </div>
+                <h1 class="mb-4" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }" style="opacity: 1; transform: translateZ(0px) translateY(0%);">Beuty Salon</h1>
+                <p class="mb-5" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }" style="opacity: 1; transform: translateZ(0px) translateY(0%);">{{ home_page.hero_subtitle }}</p>
+                <p data-scrollax="properties: { translateY: '30%', opacity: 1.6 }" style="opacity: 1; transform: translateZ(0px) translateY(0%);">
+                    <a href="https://wa.me/{{ home_page.appointment_phone_number }}" class="btn btn-white btn-outline-white px-4 py-3">Book an appointment now</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "coderedcms/snippets/navigation.html" %}
+
+{% endwith %}
+
 
 <!-- breadcrumb -->
 <div class="bread-crumb bgwhite flex-w p-l-52 p-r-15 p-t-30 p-l-15-sm">
@@ -167,4 +198,4 @@ const swiper = new Swiper('.swiper-container', {
     },
 });
 </script>
-{% endblock content %}
+{% endblock content_body %}

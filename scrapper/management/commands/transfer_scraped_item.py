@@ -10,21 +10,33 @@ class Command(BaseCommand):
     help = "Transfers up to 10 ScrapedItems to ProductPages under a ProductIndexPage, avoiding duplicates."
 
     def handle(self, *args, **options):
-        # Check if ProductIndexPage exists
-        index_page = ProductIndexPage.objects.first()
+        # Check if ProductIndexPage exists (use Turkish version, locale_id=2)
+        index_page = ProductIndexPage.objects.filter(locale_id=2).first()
         if not index_page:
-            self.stdout.write(self.style.ERROR("No ProductIndexPage found. Please create one in the Wagtail admin."))
+            self.stdout.write(self.style.ERROR("No Turkish ProductIndexPage found. Please create one in the Wagtail admin with Turkish locale."))
             return
 
-        # Retrieve 10 ScrapedItem entries
-        scraped_items = ScrapedItem.objects.all()[:10]
-        if not scraped_items:
-            self.stdout.write(self.style.ERROR("No ScrapedItems found."))
+        # Get all existing ProductPage slugs to filter out already transferred items
+        existing_slugs = set(ProductPage.objects.values_list('slug', flat=True))
+        
+        # Retrieve ScrapedItem entries that haven't been transferred yet
+        untransferred_items = []
+        for item in ScrapedItem.objects.all():
+            potential_slug = slugify(f"{item.slug}-{item.id}")
+            if potential_slug not in existing_slugs:
+                untransferred_items.append(item)
+                if len(untransferred_items) >= 10:
+                    break
+        
+        if not untransferred_items:
+            self.stdout.write(self.style.WARNING("No new ScrapedItems to transfer. All items have already been transferred."))
             return
+        
+        self.stdout.write(self.style.SUCCESS(f"Found {len(untransferred_items)} new items to transfer."))
 
         # Wrap in a transaction for atomicity
         with transaction.atomic():
-            for scraped_item in scraped_items:
+            for scraped_item in untransferred_items:
                 # Generate a unique and valid slug
                 raw_slug = f"{scraped_item.slug}-{scraped_item.id}"
                 slug = slugify(raw_slug)
@@ -40,11 +52,12 @@ class Command(BaseCommand):
                     slug=slug,
                     price=scraped_item.price,
                     discount_price=scraped_item.discount_price,
-                    description_short=scraped_item.description_short[:50],  # Trim if necessary
-                    description_long=scraped_item.description_long,
+                    description_short=scraped_item.description_short[:50] if scraped_item.description_short else "",
+                    description_long=scraped_item.description_long or "",
                     first_published_at=timezone.now(),
                     last_published_at=timezone.now(),
                     show_in_menus=True,
+                    locale_id=2,  # Set Turkish locale
                 )
 
                 # Add product_page as a child under ProductIndexPage

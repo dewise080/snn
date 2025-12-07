@@ -11,11 +11,12 @@
     <a href="{% url 'download_images' %}" class="button">Download Images</a>
     <!-- New button for SKU scraping -->
     <button onclick="startSkuScraping()" class="button">Scrape Product SKUs</button>
-    <form action="{% url 'process_single_sku' %}" method="post">
-    {% csrf_token %}
-    <button type="submit" class="button">Process First 5 ProductSKUs</button>
-</form>
+</div>
 
+<div style="margin-top: 20px;">
+    <h2>Transfer Scraped Items to Wagtail</h2>
+    <p>Run this command in terminal to transfer scraped items:</p>
+    <code>python manage.py transfer_scraped_item</code>
 </div>
 
 <script>
